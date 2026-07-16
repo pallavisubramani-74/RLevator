@@ -1,0 +1,9 @@
+.DS_Store
+.idea
+venv
+*.zip
+__pycache__
+tensorboard
+models
+results_data
+results_figures
