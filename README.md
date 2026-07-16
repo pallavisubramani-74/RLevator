@@ -1,20 +1,68 @@
-RLevator
-A reinforcement learning agent that learns to control an elevator — dispatching it intelligently to pick up and drop off passengers more efficiently than a standard rule-based controller.
+# RLevator
+
+A dynamic elevator control algorithm trained using reinforcement learning.
+
 <p align="center">
   <img alt="RLevator" src="images/RLevator.gif" width="40%">
 &nbsp; &nbsp; &nbsp; &nbsp;
   <img alt="Karps" src="images/Karps.gif" width="40%">
 </p>
-This started as our final project for CS 229 (Fall 2022), built by Tejas Narayanan and Kiran Bhat. Read the paper here.
-Why Elevators?
-Elevator dispatching sounds simple, but it's actually a surprisingly rich control problem: you're juggling multiple floors, unpredictable passenger arrivals, and competing goals (minimize wait time vs. minimize travel time vs. handle multiple riders at once). Most real-world elevators still run on hand-tuned heuristics. We wanted to see whether a reinforcement learning agent could learn a better policy from scratch — and whether it could generalize as the building got taller and more complex.
-How It Works
 
-Environments (envs/): A series of custom Gym-style elevator simulations, iterated from v1 through v7, each adding complexity — more floors, more passengers, more realistic dynamics.
-Agents (agents/): Standard, rule-based elevator controllers used as a baseline to benchmark the RL agent against.
-Training (train_elevator_agent.py): Trains a Stable-Baselines3 agent on the elevator environment, with optional curriculum learning that gradually increases the number of floors as training progresses.
-Benchmarking (benchmark_agents.py): Runs trained agents (and the standard controller) through the same environment and compares their performance using mean and standard deviation of episodic rewards.
-Visualization (elevator_animation.py, results_plotter.py): Tools to animate an agent's elevator behavior and plot training/benchmark results.
+Created for the CS 229 Fall 2022 final project by Tejas Narayanan and Kiran Bhat. [Read the paper here](https://drive.google.com/file/d/1RTHAwy3tp1AcMzzuSxwWKuBABh1-ZDOZ/view?usp=sharing).
 
-Installation
-RLevator was developed using Python 3.10.
+## Installation instructions
+
+RLevator was developed using Python 3.10. To install all dependencies, run `pip install -r requirements.txt`.
+
+## Running RLevator
+
+### Training an agent
+
+To train an agent, run `python train_elevator_agent.py`. Argument details are as follows:
+```
+usage: train_elevator_agent.py [-h] [--num_floors_start NUM_FLOORS_START] [--num_floors_end NUM_FLOORS_END] [--timesteps TIMESTEPS] [--seed SEED] [--verbose VERBOSE]
+
+options:
+  -h, --help            show this help message and exit
+  --num_floors_start NUM_FLOORS_START, -nfs NUM_FLOORS_START
+                        Number of floors at start
+  --num_floors_end NUM_FLOORS_END, -nfe NUM_FLOORS_END
+                        Number of floors at end
+  --timesteps TIMESTEPS, -t TIMESTEPS
+                        Number of timesteps to train
+  --seed SEED, -s SEED  Random seed to use
+  --verbose VERBOSE, -v VERBOSE
+                        Verbosity (0 or 1)
+```
+
+To monitor training progress, run `tensorboard --logdir tensorboard`.
+
+When `num_floors_end` > `num_floors_start`, curriculum learning is applied to progressively increase the
+complexity of the environment.
+
+This program will train an agent and save it to a path corresponding to the environment parameters. This
+path is printed at the beginning of training, and can be passed into the benchmarking script to evaluate
+performance.
+
+### Benchmarking agents
+
+To compare the performance of trained agents to the standard elevator control algorithm,
+run `python benchmark_agents.py -n NUM_FLOORS --models MODEL_1_PATH MODEL_2_PATH ...`.
+Argument details are as follows:
+
+```
+usage: benchmark_agents.py [-h] [--num_floors NUM_FLOORS] --models MODELS [MODELS ...]
+
+options:
+  -h, --help            show this help message and exit
+  --num_floors NUM_FLOORS, -n NUM_FLOORS
+                        number of floors for environment
+  --models MODELS [MODELS ...], -m MODELS [MODELS ...]
+                        Paths to models to be evaluated. Example path: models/env_v7/elev1-1_floor3-3_rand1/dd23f6.zip
+  --animation_delay ANIMATION_DELAY, -a ANIMATION_DELAY
+                        Animation delay (in seconds) between timesteps. Larger delay -> slower animation. Animation is off by default.
+                        
+```
+
+This program will evaluate the models provided, along with the standard control algorithm, and provide
+the mean and standard deviation of episodic rewards for each model.
